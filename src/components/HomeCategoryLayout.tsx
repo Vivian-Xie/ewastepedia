@@ -33,10 +33,7 @@ export default function HomeCategoryLayout({ categories }: { categories: Categor
   return (
     <>
       {/* Floating top-right nav for home page */}
-      <div style={{
-        position: "fixed", top: 18, right: 24, zIndex: 100,
-        display: "flex", gap: 8,
-      }}>
+      <div className="home-float-nav">
         <a href="/new-thread" className="nav-link">New Thread</a>
         <a href="/admin" className="nav-link">Admin</a>
       </div>
