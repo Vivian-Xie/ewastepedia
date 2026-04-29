@@ -17,7 +17,7 @@ function renderMarkdown(md: string): string {
     .replace(/```(\w*)\n([\s\S]*?)```/g, (_m, _lang, code) =>
       `<pre><code>${code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>`)
     .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>\n?)+/gs, "<ul>$&</ul>")
+    .replace(/(<li>[\s\S]*?<\/li>\n?)+/g, "<ul>$&</ul>")
     .replace(/^(?!<[hup]|$)(.+)$/gm, "<p>$1</p>")
     .replace(/\n{2,}/g, "\n");
 }
