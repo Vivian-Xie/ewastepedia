@@ -70,6 +70,16 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/categories/[id]/route.js"
+    ],
+    "/wiki/[slug]/edit/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/wiki/[slug]/edit/page.js"
+    ],
+    "/api/components/[slug]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/components/[slug]/route.js"
     ]
   }
 }

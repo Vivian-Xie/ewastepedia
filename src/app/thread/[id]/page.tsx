@@ -91,73 +91,72 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
         Thread
       </div>
 
-      {/* Original post */}
-      <div className="post-card">
-        <div className="post-inner">
-          <div className="vote-col">
-            <button className="vote-btn up">▲</button>
-            <span className="vote-count">{post.voteScore}</span>
-            <button className="vote-btn down">▼</button>
+      <div className={referencedComponents.length > 0 ? "thread-layout" : undefined}>
+        {/* Main content */}
+        <div className="thread-main">
+          <div className="post-card">
+            <div className="post-inner">
+              <div className="vote-col">
+                <button className="vote-btn up">▲</button>
+                <span className="vote-count">{post.voteScore}</span>
+                <button className="vote-btn down">▼</button>
+              </div>
+              <div className="post-body">
+                <div className="post-meta">
+                  {post.tags.map((t) => (
+                    <span key={t} className={`tag ${TAG_CLASS[t] ?? ""}`}>{t}</span>
+                  ))}
+                  <span className="author-name">{post.author.username}</span>
+                  <span>·</span>
+                  <span>{timeAgo(post.createdAt)}</span>
+                  <span>·</span>
+                  <span>{post.category.name}</span>
+                </div>
+                <h1 className="post-title">{post.title}</h1>
+                <p className="post-text">{post.body}</p>
+                <div className="post-actions">
+                  <button className="action-btn">💬 {flatComments.length} replies</button>
+                  <button className="action-btn">↗ Share</button>
+                  <button className="action-btn">🔖 Save</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="post-body">
-            <div className="post-meta">
-              {post.tags.map((t) => (
-                <span key={t} className={`tag ${TAG_CLASS[t] ?? ""}`}>{t}</span>
-              ))}
-              <span className="author-name">{post.author.username}</span>
-              <span>·</span>
-              <span>{timeAgo(post.createdAt)}</span>
-              <span>·</span>
-              <span>{post.category.name}</span>
-            </div>
-            <h1 className="post-title">{post.title}</h1>
-            <p className="post-text">{post.body}</p>
-            <div className="post-actions">
-              <button className="action-btn">💬 {flatComments.length} replies</button>
-              <button className="action-btn">↗ Share</button>
-              <button className="action-btn">🔖 Save</button>
-            </div>
+
+          <ReplyBox postId={id} />
+
+          <div className="reply-header">{flatComments.length} comments</div>
+          <div className="comment-tree">
+            <CommentTree comments={nestedComments} postAuthor={post.author.username} />
           </div>
         </div>
-      </div>
 
-      {/* Reply box */}
-      <ReplyBox postId={id} />
-
-      {/* Comments */}
-      <div className="reply-header">{flatComments.length} comments</div>
-      <div className="comment-tree">
-        <CommentTree comments={nestedComments} postAuthor={post.author.username} />
-      </div>
-
-      {/* Referenced components */}
-      {referencedComponents.length > 0 && (
-        <>
-          <hr className="section-divider" />
-          <div className="related-section">
-            <div className="related-title">Referenced Components in this Thread</div>
-            <div className="related-grid">
+        {/* Sticky right sidebar */}
+        {referencedComponents.length > 0 && (
+          <aside className="thread-sidebar">
+            <div className="related-title">Referenced Components</div>
+            <div className="thread-sidebar-list">
               {referencedComponents.map((comp) => (
-                <a key={comp.id} className="comp-card" href={`/wiki/${comp.slug}`}>
-                  <div className="comp-card-img">
+                <a key={comp.id} className="sidebar-comp-card" href={`/wiki/${comp.slug}`}>
+                  <div className="comp-card-img" style={{ width: 36, height: 36, flexShrink: 0 }}>
                     {comp.imageBase64
                       ? <img src={comp.imageBase64} alt={comp.name} />
                       : "⚙️"}
                   </div>
-                  <div className="comp-card-name">{comp.name}</div>
-                  <div className="comp-card-desc">{comp.description}</div>
-                  <div className="comp-card-tags">
-                    {comp.tags.slice(0, 2).map((t) => (
-                      <span key={t} className={`tag ${TAG_CLASS[t] ?? ""}`}>{t}</span>
-                    ))}
+                  <div>
+                    <div className="comp-card-name" style={{ fontSize: "0.95rem" }}>{comp.name}</div>
+                    {comp.description && (
+                      <div className="comp-card-desc" style={{ fontSize: "0.75rem", marginBottom: 0 }}>
+                        {comp.description}
+                      </div>
+                    )}
                   </div>
-                  <div className="comp-card-link">→ View wiki page</div>
                 </a>
               ))}
             </div>
-          </div>
-        </>
-      )}
+          </aside>
+        )}
+      </div>
     </div>
   );
 }

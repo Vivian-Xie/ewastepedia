@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
+import BrowseComponents from "@/components/BrowseComponents";
 
 export const revalidate = 30;
 
@@ -25,7 +26,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const category = await prisma.category.findUnique({
     where: { slug },
     include: {
-      components: { select: { id: true, slug: true, name: true, imageBase64: true } },
+      components: { select: { id: true, slug: true, name: true, description: true, imageBase64: true, tags: true } },
       _count: { select: { posts: true } },
     },
   });
@@ -60,16 +61,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </div>
       </div>
 
-      {/* Component chips in this category */}
+      {/* Browse components */}
       {category.components.length > 0 && (
-        <div style={{ marginBottom: 24, display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.6rem", color: "var(--text-meta)", letterSpacing: "0.06em", textTransform: "uppercase", alignSelf: "center" }}>
-            Components:
-          </span>
-          {category.components.map((c) => (
-            <a key={c.id} className="comp-chip" href={`/wiki/${c.slug}`}>{c.name}</a>
-          ))}
-        </div>
+        <BrowseComponents components={category.components} />
       )}
 
       {/* Thread list */}

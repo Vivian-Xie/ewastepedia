@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Category = {
   id: string;
@@ -9,7 +9,6 @@ type Category = {
   iconEmoji: string | null;
   tags: string[];
   displayOrder: number;
-  imageBase64: string | null;
   _count: { posts: number; components: number };
 };
 
@@ -17,9 +16,6 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ slug: "", name: "", description: "", iconEmoji: "", tags: "", displayOrder: "0" });
-  const [editingImageId, setEditingImageId] = useState<string | null>(null);
-  const [savingImage, setSavingImage] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { refresh(); }, []);
 
@@ -40,34 +36,6 @@ export default function AdminCategoriesPage() {
     });
     setCreating(false);
     setForm({ slug: "", name: "", description: "", iconEmoji: "", tags: "", displayOrder: "0" });
-    refresh();
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !editingImageId) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const dataUrl = reader.result as string;
-      setSavingImage(true);
-      await fetch(`/api/categories/${editingImageId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: dataUrl }),
-      });
-      setSavingImage(false);
-      setEditingImageId(null);
-      refresh();
-    };
-    reader.readAsDataURL(file);
-  }
-
-  async function removeImage(id: string) {
-    await fetch(`/api/categories/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageBase64: null }),
-    });
     refresh();
   }
 
@@ -120,15 +88,6 @@ export default function AdminCategoriesPage() {
           </div>
         )}
 
-        {/* Hidden file input */}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          style={{ display: "none" }}
-          onChange={handleFileChange}
-        />
-
         <table className="admin-table">
           <thead>
             <tr>
@@ -138,7 +97,6 @@ export default function AdminCategoriesPage() {
               <th>Posts</th>
               <th>Components</th>
               <th>Order</th>
-              <th>Hover Image</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -157,42 +115,6 @@ export default function AdminCategoriesPage() {
                   fontSize: "0.75rem" }}>{c._count.components}</td>
                 <td style={{ textAlign: "center", fontFamily: "JetBrains Mono, monospace",
                   fontSize: "0.75rem" }}>{c.displayOrder}</td>
-                <td>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {c.imageBase64 ? (
-                      <img
-                        src={c.imageBase64}
-                        alt={c.name}
-                        style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover",
-                          border: "1px solid var(--border)" }}
-                      />
-                    ) : (
-                      <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.6rem",
-                        color: "var(--text-meta)" }}>—</span>
-                    )}
-                    <button
-                      className="btn-ghost"
-                      style={{ fontSize: "0.58rem", padding: "2px 8px" }}
-                      disabled={savingImage && editingImageId === c.id}
-                      onClick={() => {
-                        setEditingImageId(c.id);
-                        fileRef.current?.click();
-                      }}
-                    >
-                      {savingImage && editingImageId === c.id ? "Saving…" : "Upload"}
-                    </button>
-                    {c.imageBase64 && (
-                      <button
-                        className="btn-ghost"
-                        style={{ fontSize: "0.58rem", padding: "2px 8px", color: "#c0392b",
-                          borderColor: "#f5c6bc" }}
-                        onClick={() => removeImage(c.id)}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                </td>
                 <td>
                   <a href={`/category/${c.slug}`}
                     style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "0.6rem",

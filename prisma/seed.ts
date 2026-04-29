@@ -221,6 +221,94 @@ async function main() {
     },
   });
 
+  await prisma.component.upsert({
+    where: { slug: "sg90-servo" },
+    update: {},
+    create: {
+      categoryId: motorsCat.id,
+      slug: "sg90-servo",
+      name: "SG90 Servo",
+      description: "9g micro servo, ubiquitous in RC toys, robotic arms, and pan-tilt camera mounts.",
+      specs: [
+        { label: "Voltage", value: "4.8–6V" },
+        { label: "Torque", value: "1.8 kg·cm" },
+        { label: "Speed", value: "0.1s / 60°" },
+        { label: "Weight", value: "9g" },
+      ],
+      tags: ["DOCS", "DIY", "servo", "RC", "9g"],
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { slug: "775-dc-motor" },
+    update: {},
+    create: {
+      categoryId: motorsCat.id,
+      slug: "775-dc-motor",
+      name: "775 DC Motor",
+      description: "High-speed brushed DC motor salvaged from power tools, printers, and appliances.",
+      specs: [
+        { label: "Voltage", value: "12–24V" },
+        { label: "No-load RPM", value: "3500–9000 RPM" },
+        { label: "Shaft Diameter", value: "5mm" },
+      ],
+      tags: ["DIY", "COMMUNITY", "brushed", "12V", "power tool"],
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { slug: "rs-380-motor" },
+    update: {},
+    create: {
+      categoryId: motorsCat.id,
+      slug: "rs-380-motor",
+      name: "RS-380 Motor",
+      description: "Small brushed DC motor from slot cars, cassette decks, and toy vehicles.",
+      specs: [
+        { label: "Voltage", value: "1.5–6V" },
+        { label: "No-load RPM", value: "8000 RPM @ 3V" },
+        { label: "Weight", value: "35g" },
+      ],
+      tags: ["EDUCATION", "DOCS", "brushed", "3V", "toy"],
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { slug: "n20-micro-motor" },
+    update: {},
+    create: {
+      categoryId: motorsCat.id,
+      slug: "n20-micro-motor",
+      name: "N20 Micro Motor",
+      description: "Tiny geared DC motor used in robots, camera autofocus, and medical devices.",
+      specs: [
+        { label: "Voltage", value: "3–6V" },
+        { label: "Gear Ratios", value: "10:1 – 1000:1" },
+        { label: "Shaft Diameter", value: "3mm" },
+        { label: "Size", value: "10 × 12mm" },
+      ],
+      tags: ["COMMUNITY", "TEARDOWN", "geared", "micro", "robot"],
+    },
+  });
+
+  await prisma.component.upsert({
+    where: { slug: "eg1218-motor" },
+    update: {},
+    create: {
+      categoryId: motorsCat.id,
+      slug: "eg1218-motor",
+      name: "EG1218",
+      description: "Pager vibration motor salvaged from mobile phones and handheld devices.",
+      specs: [
+        { label: "Voltage", value: "3V" },
+        { label: "Current", value: "60–100mA" },
+        { label: "Vibration", value: "13500 RPM" },
+        { label: "Size", value: "12 × 3.4mm" },
+      ],
+      tags: ["DIY", "COMMUNITY", "vibration", "pager", "3V"],
+    },
+  });
+
   // ── Wiki page for 28BYJ-48 ───────────────────────────────────────────────
   await prisma.wikiPage.upsert({
     where: { componentId: motor28byj.id },
