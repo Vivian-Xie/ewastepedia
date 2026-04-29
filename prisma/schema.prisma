@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+// ── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+enum PostTag {
+  DIY
+  EDUCATION
+  DOCS
+  TEARDOWN
+  COMMUNITY
+}
+
+// ── USERS ────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String     @id @default(cuid())
+  username     String     @unique
+  email        String     @unique
+  passwordHash String
+  avatarBase64 String?    @db.Text
+  bio          String?
+  role         Role       @default(MEMBER)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  posts      Post[]
+  comments   Comment[]
+  votes      Vote[]
+  bookmarks  Bookmark[]
+  wikiEdits  WikiRevision[]
+  wikiPages  WikiPage[]
+}
+
+// ── CATEGORIES ───────────────────────────────────────────────────────────────
+
+model Category {
+  id           String  @id @default(cuid())
+  slug         String  @unique
+  name         String
+  description  String?
+  iconEmoji    String?
+  tags         String[]
+  displayOrder Int     @default(0)
+  imageBase64  String? @db.Text
+
+  posts      Post[]
+  components Component[]
+}
+
+// ── COMPONENTS (e-waste wiki entries) ────────────────────────────────────────
+
+model Component {
+  id          String   @id @default(cuid())
+  categoryId  String
+  slug        String   @unique
+  name        String
+  description String?
+  specs       Json?    // { label: string, value: string }[]
+  imageBase64 String?  @db.Text
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category   Category        @relation(fields: [categoryId], references: [id])
+  wikiPage   WikiPage?
+  postRefs   PostComponent[]
+}
+
+// ── WIKI PAGES ───────────────────────────────────────────────────────────────
+
+model WikiPage {
+  id          String   @id @default(cuid())
+  componentId String   @unique
+  content     String   @db.Text
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  component  Component      @relation(fields: [componentId], references: [id])
+  author     User           @relation(fields: [authorId], references: [id])
+  revisions  WikiRevision[]
+}
+
+model WikiRevision {
+  id         String   @id @default(cuid())
+  wikiPageId String
+  content    String   @db.Text
+  authorId   String
+  summary    String?
+  createdAt  DateTime @default(now())
+
+  wikiPage WikiPage @relation(fields: [wikiPageId], references: [id])
+  author   User     @relation(fields: [authorId], references: [id])
+}
+
+// ── POSTS (forum threads) ─────────────────────────────────────────────────────
+
+model Post {
+  id         String   @id @default(cuid())
+  categoryId String
+  authorId   String
+  title      String
+  body       String   @db.Text
+  tags       String[]
+  voteScore  Int      @default(0)
+  viewCount  Int      @default(0)
+  isPinned   Boolean  @default(false)
+  isLocked   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category   Category        @relation(fields: [categoryId], references: [id])
+  author     User            @relation(fields: [authorId], references: [id])
+  comments   Comment[]
+  votes      Vote[]
+  bookmarks  Bookmark[]
+  components PostComponent[]
+}
+
+// junction: which components are referenced in a post
+model PostComponent {
+  postId      String
+  componentId String
+
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  component Component @relation(fields: [componentId], references: [id])
+
+  @@id([postId, componentId])
+}
+
+// ── COMMENTS ─────────────────────────────────────────────────────────────────
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  parentId  String?
+  authorId  String
+  body      String   @db.Text
+  voteScore Int      @default(0)
+  isOp      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("Replies", fields: [parentId], references: [id])
+  children Comment[] @relation("Replies")
+  author   User      @relation(fields: [authorId], references: [id])
+  votes    Vote[]
+}
+
+// ── VOTES ────────────────────────────────────────────────────────────────────
+
+model Vote {
+  id        String   @id @default(cuid())
+  userId    String
+  value     Int      // +1 or -1
+  postId    String?
+  commentId String?
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id])
+  post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+}
+
+// ── BOOKMARKS ────────────────────────────────────────────────────────────────
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
