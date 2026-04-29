@@ -1225,29 +1225,32 @@ hr.section-divider {
     gap: 0;
   }
 
-  /* Logo comes first */
+  /* Logo comes first, full width */
   .center-logo {
     order: -1;
     margin: 16px 0 4px;
     align-items: center;
   }
   .logo-image-wrapper {
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    max-width: 100%;
+    border-radius: 12px;
     margin-bottom: 8px;
   }
   .logo-name { font-size: 0.9rem; }
   .logo-sub  { font-size: 0.5rem; }
 
-  /* Both columns → 2-col card grid */
+  /* Both columns → single column list */
   .col-left, .col-right {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
     padding: 8px 0;
-    align-items: start;
+    align-items: stretch;
   }
-  .col-left { align-items: start; padding-right: 0; text-align: left; }
+  .col-left { padding-right: 0; text-align: left; }
   .col-right { padding-left: 0; }
 
   /* Reset arc offsets */
